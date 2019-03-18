@@ -4,11 +4,13 @@ const robots = {
 }
 
 async function start() {
-    const content = {}
+    const content = {
+        maximumSetences: 7
+    }
 
     robots.userInput(content);
     await robots.text(content);
 
-    console.log(content)
+    console.log(JSON.stringify(content, null, 4));
 }
 start();
