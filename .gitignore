@@ -62,3 +62,5 @@ typings/
 
 #Credentias
 credentias/*.json
+
+content.json

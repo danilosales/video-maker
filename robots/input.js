@@ -1,8 +1,14 @@
 const readline = require('readline-sync')
+const state = require('./state.js');
 
-function robot(content) {
+function robot() {
+    const content = {
+        maximumSetences: 7
+    }
+    
     content.searchTerm = askAndReturnSearchTerm()
     content.prefix = askAndReturnPrefix()
+    state.save(content);
 
     function askAndReturnSearchTerm() {
         return readline.question('Type a Wikipedia search term: ')
@@ -16,6 +22,5 @@ function robot(content) {
         return selectedPrefixText
     }
 }
-
 
 module.exports = robot;
