@@ -1,6 +1,6 @@
 const algorithmia = require('algorithmia');
 const algorithmiaApiKey = require('../credentials/algorithmia.json').apiKey;
-const setenceBoundaryDetection = require('sbd');
+const sentenceBoundaryDetection = require('sbd');
 
 const watsonApiKey = require('../credentials/watson-nlu.json').apikey;
 const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
@@ -19,7 +19,7 @@ async function robot() {
     await fetchContentFromWikipedia(content);
     sanitizeContent(content);
     breakContentIntoSequences(content);
-    limitMaximumSetences(content);
+    limitMaximumSentences(content);
     await fetchKeywordsOfAllSentences(content);
 
     state.save(content);
@@ -60,12 +60,12 @@ async function robot() {
     }
 
     function breakContentIntoSequences(content) {
-        content.setences = [];
+        content.sentences = [];
 
-        const setences = setenceBoundaryDetection.sentences(content.sourceContentSanitized);
-        setences.forEach((setence) => {
-            content.setences.push({
-                text: setence,
+        const sentences = sentenceBoundaryDetection.sentences(content.sourceContentSanitized);
+        sentences.forEach((sentence) => {
+            content.sentences.push({
+                text: sentence,
                 keywords: [],
                 images: []
             });
@@ -73,19 +73,19 @@ async function robot() {
     }
 
     async function fetchKeywordsOfAllSentences(content) {
-        for(const setence of content.setences) {
-            setence.keywords = await fetchWatsonAndReturnKeywords(setence.text);
+        for(const sentence of content.sentences) {
+            sentence.keywords = await fetchWatsonAndReturnKeywords(sentence.text);
         }
     }
 
-    function limitMaximumSetences(content) {
-        content.setences = content.setences.slice(0, content.maximumSetences);
+    function limitMaximumSentences(content) {
+        content.sentences = content.sentences.slice(0, content.maximumSentences);
     }
 
-    async function fetchWatsonAndReturnKeywords(setence) {
+    async function fetchWatsonAndReturnKeywords(sentence) {
         return new Promise((resolve, reject) => {
             nlu.analyze({
-                text: setence,
+                text: sentence,
                 features: {
                     keywords: {}
                 }
