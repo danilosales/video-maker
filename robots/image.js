@@ -6,6 +6,7 @@ const state = require('./state.js');
 const googleSearchCredentials = require('./../credentials/google-search.json');
 
 async function robot() {
+  console.log(`> [image-robot] Starting...`);
   const content = state.load();
 
   await fetchImagesOfAllSentences(content);
@@ -13,11 +14,20 @@ async function robot() {
   
 
   async function fetchImagesOfAllSentences(content) {
-    for (const sentence of content.sentences) {
-      const query = `${content.searchTerm} ${sentence.keywords[0]}`;
-      sentence.images = await fetchGoogleAndReturnUmagesLinks(query);
+    for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
+      let query;
 
-      sentence.googleSearchQuery = query;
+      if(sentenceIndex === 0){
+        query = `${content.searchTerm}`;
+      } else {
+        query = `${content.searchTerm} ${content.sentences[sentenceIndex].keywords[0]}`;
+      }
+      
+      console.log(`> [image-robot] Querying Google Images with "${query}"`);
+      
+      content.sentences[sentenceIndex].images = await fetchGoogleAndReturnUmagesLinks(query);
+
+      content.sentence[sentenceIndex].googleSearchQuery = query;
     }
   }
 
@@ -52,18 +62,18 @@ async function robot() {
 
         try {
           if (content.downloaderImages.includes(imageUrl)) {
-            throw new Error('Imagem já foi baixada.');
+            throw new Error('Image already downloaded');
           }
 
           await downloadAndSave(imageUrl, `${sentenceIndex}-original.png`);
           content.downloaderImages.push(imageUrl);
           console.log(
-            `> [${sentenceIndex}][${imageIndex}] Baixou imagem com sucesso: ${imageUrl}`
+            `> [image-robot] [${sentenceIndex}][${imageIndex}] Image succesfully downloaded: ${imageUrl}`
           );
           break;
         } catch (error) {
           console.log(
-            `> [${sentenceIndex}][${imageIndex}] Erro ao baixar (${imageUrl}): ${error}`
+            `> [image-robot] [${sentenceIndex}][${imageIndex}] Error (${imageUrl}): ${error}`
           );
         }
       }
